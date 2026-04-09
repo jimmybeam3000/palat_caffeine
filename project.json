@@ -1,0 +1,22 @@
+{
+  "overview": "A Palantir-inspired intelligence platform with five integrated modules: Dashboard, Entity Graph, Investigation Tools, Operational Feed, and Integration Hub. Supports real data connections via CSV uploads, REST API polling, and JSON feed ingestion.",
+  "features": [
+    "KPI dashboard with 30-day incident trend charts",
+    "Force-directed entity graph with relationship mapping",
+    "Investigation tools with save/restore snapshots",
+    "Operational feed with incident tracking and anomaly alerts",
+    "Integration Hub with CSV upload, REST API polling, and JSON feed ingestion",
+    "Mobile-responsive layout with mock/seed data fallback"
+  ],
+  "category": "productivity",
+  "tags": [
+    "intelligence",
+    "analytics",
+    "dashboard",
+    "data-integration",
+    "investigation",
+    "palantir",
+    "entity-graph"
+  ],
+  "last_updated": "2026-04-09T22:03:15.257Z"
+}

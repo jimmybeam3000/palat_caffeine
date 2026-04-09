@@ -1,0 +1,211 @@
+type http_request_result = 
+ record {
+   body: blob;
+   headers: vec http_header;
+   status: nat;
+ };
+type http_header = 
+ record {
+   name: text;
+   value: text;
+ };
+type _ImmutableObjectStorageRefillResult = 
+ record {
+   success: opt bool;
+   topped_up_amount: opt nat;
+ };
+type _ImmutableObjectStorageRefillInformation = record {
+                                                  proposed_top_up_amount:
+                                                   opt nat;};
+type _ImmutableObjectStorageCreateCertificateResult = 
+ record {
+   blob_hash: text;
+   method: text;
+ };
+type TransformationOutput = 
+ record {
+   body: blob;
+   headers: vec http_header;
+   status: nat;
+ };
+type TransformationInput = 
+ record {
+   context: blob;
+   response: http_request_result;
+ };
+type Timestamp = int;
+type TimelineEvent = 
+ record {
+   eventType: text;
+   note: text;
+   timestamp: Timestamp;
+ };
+type SyncRecord = 
+ record {
+   message: text;
+   recordCount: nat;
+   status: DataSourceStatus;
+   timestamp: Timestamp;
+ };
+type Severity = 
+ variant {
+   Critical;
+   High;
+   Low;
+   Medium;
+ };
+type Relationship = 
+ record {
+   relationshipType: text;
+   targetId: EntityId;
+ };
+type InvestigationId = nat;
+type Investigation = 
+ record {
+   createdAt: Timestamp;
+   entityIds: vec EntityId;
+   id: InvestigationId;
+   name: text;
+ };
+type IncidentStatus = 
+ variant {
+   Closed;
+   Investigating;
+   Open;
+ };
+type IncidentId = nat;
+type Incident = 
+ record {
+   createdAt: Timestamp;
+   description: text;
+   id: IncidentId;
+   notes: text;
+   relatedEntityIds: vec EntityId;
+   severity: Severity;
+   status: IncidentStatus;
+   timeline: vec TimelineEvent;
+   title: text;
+   updatedAt: Timestamp;
+ };
+type EntityType = 
+ variant {
+   Asset;
+   Event;
+   Organization;
+   Person;
+ };
+type EntityId = nat;
+type Entity = 
+ record {
+   attributes: vec Attribute;
+   entityType: EntityType;
+   id: EntityId;
+   lastUpdated: Timestamp;
+   name: text;
+   relationships: vec Relationship;
+   sourceId: opt DataSourceId;
+ };
+type DataSourceType = 
+ variant {
+   CSV;
+   JSON_Feed;
+   REST_API;
+ };
+type DataSourceStatus = 
+ variant {
+   Connected;
+   Error;
+   Idle;
+   Syncing;
+ };
+type DataSourceId = nat;
+type DataSourceConfig = 
+ record {
+   headers: vec record {
+                  text;
+                  text;
+                };
+   intervalSeconds: nat;
+   url: text;
+ };
+type DataSource = 
+ record {
+   config: DataSourceConfig;
+   id: DataSourceId;
+   lastSync: opt Timestamp;
+   name: text;
+   recordCount: nat;
+   sourceType: DataSourceType;
+   status: DataSourceStatus;
+   syncHistory: vec SyncRecord;
+ };
+type Attribute = 
+ record {
+   key: text;
+   value: text;
+ };
+type AnomalyRuleId = nat;
+type AnomalyRule = 
+ record {
+   action: AnomalyAction;
+   entityType: EntityType;
+   id: AnomalyRuleId;
+   name: text;
+   threshold: float64;
+ };
+type AnomalyAction = 
+ variant {
+   Alert;
+   Flag;
+ };
+service : {
+  _immutableObjectStorageBlobsAreLive: (hashes: vec blob) -> (vec bool) query;
+  _immutableObjectStorageBlobsToDelete: () -> (vec blob) query;
+  _immutableObjectStorageConfirmBlobDeletion: (blobs: vec blob) -> ();
+  _immutableObjectStorageCreateCertificate: (blobHash: text) ->
+   (_ImmutableObjectStorageCreateCertificateResult);
+  _immutableObjectStorageRefillCashier: (refillInformation:
+   opt _ImmutableObjectStorageRefillInformation) ->
+   (_ImmutableObjectStorageRefillResult);
+  _immutableObjectStorageUpdateGatewayPrincipals: () -> ();
+  addAnomalyRule: (name: text, entityType: EntityType, threshold: float64,
+   action: AnomalyAction) -> (AnomalyRule);
+  addDataSource: (name: text, sourceType: DataSourceType, config:
+   DataSourceConfig) -> (DataSource);
+  addEntity: (name: text, entityType: EntityType, attributes: vec Attribute,
+   relationships: vec Relationship, sourceId: opt DataSourceId) -> (Entity);
+  addIncident: (title: text, description: text, severity: Severity,
+   relatedEntityIds: vec EntityId) -> (Incident);
+  addIncidentEvent: (id: IncidentId, eventType: text, note: text) -> (bool);
+  deleteAnomalyRule: (id: AnomalyRuleId) -> (bool);
+  deleteDataSource: (id: DataSourceId) -> (bool);
+  deleteEntity: (id: EntityId) -> (bool);
+  deleteIncident: (id: IncidentId) -> (bool);
+  deleteInvestigation: (id: InvestigationId) -> (bool);
+  getAnomalyRule: (id: AnomalyRuleId) -> (opt AnomalyRule) query;
+  getDataSource: (id: DataSourceId) -> (opt DataSource) query;
+  getEntity: (id: EntityId) -> (opt Entity) query;
+  getIncident: (id: IncidentId) -> (opt Incident) query;
+  getInvestigation: (id: InvestigationId) -> (opt Investigation) query;
+  getSyncHistory: (id: DataSourceId) -> (opt vec SyncRecord) query;
+  listAnomalyRules: () -> (vec AnomalyRule) query;
+  listDataSources: () -> (vec DataSource) query;
+  listEntities: () -> (vec Entity) query;
+  listIncidents: () -> (vec Incident) query;
+  listInvestigations: () -> (vec Investigation) query;
+  saveInvestigation: (name: text, entityIds: vec EntityId) -> (Investigation);
+  transform: (input: TransformationInput) -> (TransformationOutput) query;
+  triggerDataSourceSync: (id: DataSourceId) -> (text);
+  updateAnomalyRule: (id: AnomalyRuleId, name: text, entityType: EntityType,
+   threshold: float64, action: AnomalyAction) -> (bool);
+  updateDataSource: (id: DataSourceId, name: text, config:
+   DataSourceConfig) -> (bool);
+  updateDataSourceSync: (id: DataSourceId, status: DataSourceStatus,
+   recordCount: nat, message: text) -> (bool);
+  updateEntity: (id: EntityId, name: text, entityType: EntityType,
+   attributes: vec Attribute, relationships: vec Relationship) -> (bool);
+  updateIncident: (id: IncidentId, title: text, description: text, severity:
+   Severity, status: IncidentStatus, notes: text) -> (bool);
+  updateInvestigation: (id: InvestigationId, name: text, entityIds:
+   vec EntityId) -> (bool);
+}

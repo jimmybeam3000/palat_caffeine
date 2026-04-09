@@ -1,0 +1,115 @@
+// Version: 1.0.0
+type AnomalyAction__287859630 = {#Alert; #Flag};
+type AnomalyRuleId__59971403 = Nat;
+type AnomalyRule__723072899 =
+  {
+    action : AnomalyAction__287859630;
+    entityType : EntityType__574797016;
+    id : AnomalyRuleId__59971403;
+    name : Text;
+    threshold : Float
+  };
+type Attribute__973143423 = {key : Text; value : Text};
+type DataSourceConfig__734876617 =
+  {headers : [(Text, Text)]; intervalSeconds : Nat; url : Text};
+type DataSourceId__235989889 = Nat;
+type DataSourceStatus__856952698 = {#Connected; #Error; #Idle; #Syncing};
+type DataSourceType__963112139 = {#CSV; #JSON_Feed; #REST_API};
+type DataSource__715625631 =
+  {
+    config : DataSourceConfig__734876617;
+    id : DataSourceId__235989889;
+    lastSync : ?Timestamp__301639476;
+    name : Text;
+    recordCount : Nat;
+    sourceType : DataSourceType__963112139;
+    status : DataSourceStatus__856952698;
+    syncHistory : [SyncRecord__909280819]
+  };
+type EntityId__892221652 = Nat;
+type EntityType__574797016 = {#Asset; #Event; #Organization; #Person};
+type Entity__506367115 =
+  {
+    attributes : [Attribute__973143423];
+    entityType : EntityType__574797016;
+    id : EntityId__892221652;
+    lastUpdated : Timestamp__301639476;
+    name : Text;
+    relationships : [Relationship__906067081];
+    sourceId : ?DataSourceId__235989889
+  };
+type IncidentId__610298952 = Nat;
+type IncidentStatus__695226935 = {#Closed; #Investigating; #Open};
+type Incident__618649319 =
+  {
+    createdAt : Timestamp__301639476;
+    description : Text;
+    id : IncidentId__610298952;
+    notes : Text;
+    relatedEntityIds : [EntityId__892221652];
+    severity : Severity__241332544;
+    status : IncidentStatus__695226935;
+    timeline : [TimelineEvent__692116808];
+    title : Text;
+    updatedAt : Timestamp__301639476
+  };
+type InvestigationId__70976147 = Nat;
+type Investigation__1045993780 =
+  {
+    createdAt : Timestamp__301639476;
+    entityIds : [EntityId__892221652];
+    id : InvestigationId__70976147;
+    name : Text
+  };
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Relationship__906067081 =
+  {relationshipType : Text; targetId : EntityId__892221652};
+type Severity__241332544 = {#Critical; #High; #Low; #Medium};
+type SyncRecord__909280819 =
+  {
+    message : Text;
+    recordCount : Nat;
+    status : DataSourceStatus__856952698;
+    timestamp : Timestamp__301639476
+  };
+type TimelineEvent__692116808 =
+  {eventType : Text; note : Text; timestamp : Timestamp__301639476};
+type Timestamp__301639476 = Int;
+actor {
+  stable anomalyRuleCounter : {var value : Nat};
+  stable anomalyRules :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?AnomalyRule__723072899]];
+      var elementIndex : Nat__490723111
+    };
+  stable entities :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Entity__506367115]];
+      var elementIndex : Nat__490723111
+    };
+  stable entityCounter : {var value : Nat};
+  stable incidentCounter : {var value : Nat};
+  stable incidents :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Incident__618649319]];
+      var elementIndex : Nat__490723111
+    };
+  stable investigationCounter : {var value : Nat};
+  stable investigations :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?Investigation__1045993780]];
+      var elementIndex : Nat__490723111
+    };
+  stable sourceCounter : {var value : Nat};
+  stable sources :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?DataSource__715625631]];
+      var elementIndex : Nat__490723111
+    }
+};
